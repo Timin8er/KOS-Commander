@@ -3,50 +3,51 @@ from PyQt5.QtGui import QIcon
 from .mainWindowDesigner import Ui_KPI
 from .scriptEditorDesigner import Ui_scriptEditorDialog
 import os
-from . import kos_connection
+from . import kos_connection, icons
 from .scriptsTreeModel import scriptsTreeModel, scriptObject
 
 
 class mainWindow(QMainWindow, Ui_KPI):
 
-    icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
 
     def __init__(self, *args, **kwargs):
         QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
+        self.setWindowIcon(QIcon(icons.ROCKET))
 
-        self.icon_locked = QIcon(os.path.join(self.icons_dir, 'lock-48.png'))
-        self.icon_unlocked = QIcon(os.path.join(self.icons_dir, 'unlock-48.png'))
-        self.icon_new = QIcon(os.path.join(self.icons_dir, 'add-new-48.png'))
-        self.icon_edit = QIcon(os.path.join(self.icons_dir, 'edit-48.png'))
-        self.icon_delete = QIcon(os.path.join(self.icons_dir, 'delete-48.png'))
+        self.btnConnection.setIcon(QIcon(icons.GPS_DISCONNECTED))
 
-        self.btnNewScript.setIcon(self.icon_new)
+        self.btnNewScript.setIcon(QIcon(icons.NEW))
         self.btnNewScript.clicked.connect(self.newScript)
 
-        self.btnEditScript.setIcon(self.icon_edit)
+        self.btnEditScript.setIcon(QIcon(icons.EDIT))
         self.btnEditScript.clicked.connect(self.editScript)
 
-        self.btnDeleteScript.setIcon(self.icon_delete)
+        self.btnDeleteScript.setIcon(QIcon(icons.DELETE))
         self.btnDeleteScript.clicked.connect(self.deleteScript)
 
-        self.btnSaveScripts.clicked.connect(self.save)
-        
+        self.btnSaveScripts.clicked.connect(self.saveScripts)
+        self.btnSaveScripts.setIcon(QIcon(icons.SAVE))
+
+        self.btnSaveProfile.clicked.connect(self.saveProfile)
+        self.btnSaveProfile.setIcon(QIcon(icons.SAVE))
+
         # self.connection = kos_connection('127.0.0.1', '5410', 10)
 
         self.btnScriptInterupt.clicked.connect(lambda: self.connection.ks_stop())
 
         self.profiles_edit_unlocked = True
         self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
-        self.btnLockProfiles.setIcon(self.icon_locked)
+        self.btnLockProfiles.setIcon(QIcon(icons.LOCKED))
 
         self.command_edit_unlocked = True
         self.btnLockCommand.clicked.connect(self.toggleCommandLock)
-        self.btnLockCommand.setIcon(self.icon_locked)
+        self.btnLockCommand.setIcon(QIcon(icons.LOCKED))
 
         self.scripts_tree_model = scriptsTreeModel()
         self.scriptsView.setModel(self.scripts_tree_model)
         self.scriptsView.expandAll()
+        self.scriptsView.resizeColumnToContents(0)
 
 
 
@@ -54,13 +55,13 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.profiles_edit_unlocked ^= True
         self.btnSaveProfile.setEnabled(self.profiles_edit_unlocked)
         self.profileNameEdit.setEnabled(self.profiles_edit_unlocked)
-        self.btnLockProfiles.setIcon(self.icon_locked if self.profiles_edit_unlocked else self.icon_unlocked)
+        self.btnLockProfiles.setIcon(QIcon(icons.LOCKED) if self.profiles_edit_unlocked else QIcon(icons.UNLOCKED))
 
 
     def toggleCommandLock(self):
         self.command_edit_unlocked ^= True
         self.commandEdit.setEnabled(self.command_edit_unlocked)
-        self.btnLockCommand.setIcon(self.icon_locked if self.profiles_edit_unlocked else self.icon_unlocked)
+        self.btnLockCommand.setIcon(QIcon(icons.LOCKED) if self.command_edit_unlocked else QIcon(icons.UNLOCKED))
 
 
     def currentScript(self):
@@ -101,7 +102,11 @@ class mainWindow(QMainWindow, Ui_KPI):
             self.scripts_tree_model.removeScript(script)
             self.scriptsView.expandAll()
 
-    def save(self):
+    def saveScripts(self):
+        self.scripts_tree_model.save()
+        QMessageBox.information(self, 'Save', 'Scripts Saved')
+
+    def saveProfile(self):
         self.scripts_tree_model.save()
         QMessageBox.information(self, 'Save', 'Scripts Saved')
 

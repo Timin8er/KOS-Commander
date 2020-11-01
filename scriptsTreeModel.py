@@ -2,6 +2,7 @@ from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
 from PyQt5.QtGui import QIcon
 import os
 import json
+from . import icons
 
 class scriptObject():
 
@@ -11,6 +12,7 @@ class scriptObject():
         self.inputs = []
         self.profiles = []
         self.text = ''
+        self.onboard = False
 
     def encode(self):
         return {
@@ -116,15 +118,12 @@ class scriptTreeNode():
 
 class scriptsTreeModel(QAbstractItemModel):
 
-    icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
     scripts_file = os.path.join(os.path.dirname(__file__), 'scripts.json')
 
     def __init__(self, *args, **kwargs):
         QAbstractItemModel.__init__(self, *args, **kwargs)
 
         self._root = scriptTreeNode(None)
-        self.folder_icon = QIcon(os.path.join(self.icons_dir, 'folder-48.png'))
-        self.script_icon = QIcon(os.path.join(self.icons_dir, 'code-48.png'))
 
         self._data = []
 
@@ -222,7 +221,7 @@ class scriptsTreeModel(QAbstractItemModel):
 
 
     def columnCount(self, index):
-        return 1
+        return 2
 
 
     def data(self, index, role):
@@ -232,19 +231,27 @@ class scriptsTreeModel(QAbstractItemModel):
         script = index.internalPointer()._data
 
         if role == Qt.DisplayRole:
-            return script.name
+            if index.column() == 0:
+                return script.name
 
         if role == Qt.DecorationRole:
-            if isinstance(script, scriptObject):
-                return self.script_icon
-            else:
-                return self.folder_icon
+            if index.column() == 0:
+                if isinstance(script, scriptObject):
+                    return QIcon(icons.CODE)
+                else:
+                    return QIcon(icons.FOLDER)
+
+            elif index.column() == 1 and isinstance(script, scriptObject):
+                return QIcon(icons.CHECKED_CHECKBOX) if script.onboard else QIcon(icons.UNCHECKED_CHECKBOX)
 
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
             if role == Qt.DisplayRole:
-                return 'Scripts'
+                if section == 0:
+                    return 'Name'
+                elif section == 1:
+                    return 'Onboard'
 
         return QAbstractItemModel.headerData(self, section, orientation, role)
 
