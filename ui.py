@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QDialog, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from PyQt5.QtGui import QIcon
 from .mainWindowDesigner import Ui_KPI
-from .scriptEditorDesigner import Ui_scriptEditorDialog
 import os
 from . import kos_connection, icons
 from .scriptsTreeModel import scriptsTreeModel, scriptObject
+from .inputProfilesModel import profileObject, inputsListModel
+from .scriptEditor import scriptEditor
 
 
 class mainWindow(QMainWindow, Ui_KPI):
@@ -29,39 +30,65 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.btnSaveScripts.clicked.connect(self.saveScripts)
         self.btnSaveScripts.setIcon(QIcon(icons.SAVE))
 
-        self.btnSaveProfile.clicked.connect(self.saveProfile)
-        self.btnSaveProfile.setIcon(QIcon(icons.SAVE))
+        self.btnNewProfile.clicked.connect(self.newProfile)
+        self.btnNewProfile.setIcon(QIcon(icons.NEW))
+
+        self.btnDeleteProfile.clicked.connect(self.removeProfile)
+        self.btnDeleteProfile.setIcon(QIcon(icons.DELETE))
 
         # self.connection = kos_connection('127.0.0.1', '5410', 10)
 
+        self.btnLockScripts.clicked.connect(self.toggleScriptsLock)
+        self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
+        self.btnLockCommand.clicked.connect(self.toggleCommandLock)
         self.btnScriptInterupt.clicked.connect(lambda: self.connection.ks_stop())
 
-        self.profiles_edit_unlocked = True
-        self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
-        self.btnLockProfiles.setIcon(QIcon(icons.LOCKED))
-
-        self.command_edit_unlocked = True
-        self.btnLockCommand.clicked.connect(self.toggleCommandLock)
-        self.btnLockCommand.setIcon(QIcon(icons.LOCKED))
+        self.btnClearCommand.setIcon(QIcon(icons.CLEAR))
+        self.btnClearCommand.clicked.connect(self.clear)
 
         self.scripts_tree_model = scriptsTreeModel()
         self.scriptsView.setModel(self.scripts_tree_model)
         self.scriptsView.expandAll()
         self.scriptsView.resizeColumnToContents(0)
 
+        # ======================================================================
+        self.profiles_model = inputsListModel()
+        self.profilesView.setModel(self.profiles_model)
 
+        self.clear()
+
+
+    def clear(self):
+        self.script_edit_unlocked = False
+        self.toggleScriptsLock()
+
+        self.profiles_edit_unlocked = False
+        self.toggleProfilesLock()
+
+        self.command_edit_unlocked = False
+        self.toggleCommandLock()
+
+
+
+    def toggleScriptsLock(self):
+        self.script_edit_unlocked ^= True
+        self.btnNewScript.setEnabled(self.script_edit_unlocked)
+        self.btnEditScript.setEnabled(self.script_edit_unlocked)
+        self.btnDeleteScript.setEnabled(self.script_edit_unlocked)
+        self.btnLockScripts.setIcon(QIcon(icons.TOGGLE_ON) if self.script_edit_unlocked else QIcon(icons.TOGGLE_OFF))
 
     def toggleProfilesLock(self):
         self.profiles_edit_unlocked ^= True
-        self.btnSaveProfile.setEnabled(self.profiles_edit_unlocked)
+        self.btnNewProfile.setEnabled(self.profiles_edit_unlocked)
         self.profileNameEdit.setEnabled(self.profiles_edit_unlocked)
-        self.btnLockProfiles.setIcon(QIcon(icons.LOCKED) if self.profiles_edit_unlocked else QIcon(icons.UNLOCKED))
+        self.btnDeleteProfile.setEnabled(self.profiles_edit_unlocked)
+        self.btnLockProfiles.setIcon(QIcon(icons.TOGGLE_ON) if self.profiles_edit_unlocked else QIcon(icons.TOGGLE_OFF))
 
 
     def toggleCommandLock(self):
         self.command_edit_unlocked ^= True
         self.commandEdit.setEnabled(self.command_edit_unlocked)
-        self.btnLockCommand.setIcon(QIcon(icons.LOCKED) if self.command_edit_unlocked else QIcon(icons.UNLOCKED))
+        self.btnLockCommand.setIcon(QIcon(icons.TOGGLE_ON) if self.command_edit_unlocked else QIcon(icons.TOGGLE_OFF))
 
 
     def currentScript(self):
@@ -106,33 +133,10 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.scripts_tree_model.save()
         QMessageBox.information(self, 'Save', 'Scripts Saved')
 
-    def saveProfile(self):
-        self.scripts_tree_model.save()
-        QMessageBox.information(self, 'Save', 'Scripts Saved')
+
+    def newProfile(self):
+        pass
 
 
-class scriptEditor(QDialog, Ui_scriptEditorDialog):
-
-    def __init__(self, script, *args, **kwargs):
-        QDialog.__init__(self, *args, **kwargs)
-
-        self.setupUi(self)
-
-        self.script = script
-
-        self.nameEdit.setText(script.name)
-        self.folderEdit.setText(script.folder)
-        self.scriptTextEdit.setPlainText(script.text)
-
-
-    @classmethod
-    def edit(cls, script):
-        if not script:
-            return
-
-        dlg = cls(script)
-        if dlg.exec_():
-            script.name = dlg.nameEdit.text()
-            script.folder = dlg.folderEdit.text()
-            script.text = dlg.scriptTextEdit.toPlainText()
-            return True
+    def removeProfile(self):
+        pass

@@ -13,6 +13,7 @@ class scriptObject():
         self.profiles = []
         self.text = ''
         self.onboard = False
+        self.isCommand = False
 
     def encode(self):
         return {
@@ -20,26 +21,29 @@ class scriptObject():
             "folder":self.folder,
             "inputs":[i.encode() for i in self.inputs],
             "profiles":[i.encode() for i in self.inputs],
-            "text":self.text
+            "text":self.text,
+            "isCommand":self.isCommand
         }
 
     @classmethod
     def decode(cls, data):
         obj = cls()
-        obj.name = data['name']
-        obj.folder = data['folder']
+        obj.name = data.get('name', 'unnamed')
+        obj.folder = data.get('folder', '')
         obj.inputs = [scriptInput.decode(i) for i in data['inputs']]
         obj.profiles = [scriptProfile.decode(i) for i in data['profiles']]
-        obj.text = data['text']
+        obj.text = data.get('text', '')
+        obj.isCommand = data.get('isCommand', False)
         return obj
 
 
 class scriptInput():
 
     def __init__(self):
-        self.name = None
+        self.name = 'unnamed'
         self.value = None
-        self.limits = None
+        self.limits = {}
+        self.helpText = ''
 
 
     def encode(self):
@@ -47,7 +51,8 @@ class scriptInput():
             "name":self.name,
             "cls":self.__class__.__name__,
             "value":self.value,
-            "limits":self.limits
+            "limits":self.limits,
+            "helpText":self.helpText
         }
 
     @property
@@ -56,6 +61,7 @@ class scriptInput():
         obj.name = data['name']
         obj.value = data['value']
         obj.limits = data['limits']
+        obj.helpText = data.get('helpText','')
         return obj
 
 
@@ -237,7 +243,10 @@ class scriptsTreeModel(QAbstractItemModel):
         if role == Qt.DecorationRole:
             if index.column() == 0:
                 if isinstance(script, scriptObject):
-                    return QIcon(icons.CODE)
+                    if script.isCommand:
+                        return QIcon(icons.COMMAND)
+                    else:
+                        return QIcon(icons.CODE)
                 else:
                     return QIcon(icons.FOLDER)
 
