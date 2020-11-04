@@ -1,1 +1,1 @@
-[{"name": "Another", "folder": "Stuff", "inputs": [], "profiles": [], "text": "Whgy Not", "isCommand": false}, {"name": "Test", "folder": "folder", "inputs": [], "profiles": [], "text": "this is a script", "isCommand": true}]
+[{"name": "Another", "folder": "Stuff", "inputs": [], "profiles": [], "text": "Whgy Not", "isCommand": false}, {"name": "Test", "folder": "folder", "inputs": [], "profiles": [{"name": "named", "values": {}}, {"name": "one", "values": {}}, {"name": "two", "values": {}}, {"name": "threed", "values": {}}], "text": "this is a script", "isCommand": true}]

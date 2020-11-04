@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QModelIndex
 from .mainWindowDesigner import Ui_KPI
 import os
 from . import kos_connection, icons
@@ -16,6 +17,26 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.setupUi(self)
         self.setWindowIcon(QIcon(icons.ROCKET))
 
+        self.btnLockScripts.clicked.connect(self.toggleScriptsLock)
+        self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
+        self.btnLockCommand.clicked.connect(self.toggleCommandLock)
+        self.btnScriptInterupt.clicked.connect(lambda: self.connection.ks_stop())
+
+        self.btnClearCommand.setIcon(QIcon(icons.CLEAR))
+        self.btnClearCommand.clicked.connect(self.clear)
+
+        self.scripts_tree_model = scriptsTreeModel()
+        self.scriptsView.setModel(self.scripts_tree_model)
+        self.scriptsView.expandAll()
+        self.scriptsView.resizeColumnToContents(0)
+        self.scriptsView.selectionModel().currentChanged.connect(self.useCurrentScript)
+
+        # ======================================================================
+        self.profiles_model = inputsListModel()
+        self.profilesView.setModel(self.profiles_model)
+        self.profilesView.selectionModel().currentChanged.connect(self.useCurrentProfile)
+
+        # ======================================================================
         self.btnConnection.setIcon(QIcon(icons.GPS_DISCONNECTED))
 
         self.btnNewScript.setIcon(QIcon(icons.NEW))
@@ -33,27 +54,12 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.btnNewProfile.clicked.connect(self.newProfile)
         self.btnNewProfile.setIcon(QIcon(icons.NEW))
 
-        self.btnDeleteProfile.clicked.connect(self.removeProfile)
+        self.btnDeleteProfile.clicked.connect(lambda: self.profiles_model.removeProfile(self.currentProfile()))
         self.btnDeleteProfile.setIcon(QIcon(icons.DELETE))
 
+        self.profileNameEdit.editingFinished.connect(lambda: setattr(self.currentProfile(), 'name', self.profileNameEdit.text()))
+
         # self.connection = kos_connection('127.0.0.1', '5410', 10)
-
-        self.btnLockScripts.clicked.connect(self.toggleScriptsLock)
-        self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
-        self.btnLockCommand.clicked.connect(self.toggleCommandLock)
-        self.btnScriptInterupt.clicked.connect(lambda: self.connection.ks_stop())
-
-        self.btnClearCommand.setIcon(QIcon(icons.CLEAR))
-        self.btnClearCommand.clicked.connect(self.clear)
-
-        self.scripts_tree_model = scriptsTreeModel()
-        self.scriptsView.setModel(self.scripts_tree_model)
-        self.scriptsView.expandAll()
-        self.scriptsView.resizeColumnToContents(0)
-
-        # ======================================================================
-        self.profiles_model = inputsListModel()
-        self.profilesView.setModel(self.profiles_model)
 
         self.clear()
 
@@ -67,6 +73,8 @@ class mainWindow(QMainWindow, Ui_KPI):
 
         self.command_edit_unlocked = False
         self.toggleCommandLock()
+
+        self.scriptsView.setCurrentIndex(QModelIndex())
 
 
 
@@ -104,6 +112,24 @@ class mainWindow(QMainWindow, Ui_KPI):
             return None
 
 
+    def currentProfile(self):
+        return self.profilesView.currentIndex().internalPointer()
+
+
+    def useCurrentScript(self):
+        script = self.currentScript()
+        self.profiles_model.loadData(script)
+
+
+    def useCurrentProfile(self):
+        profile = self.currentProfile()
+        if profile:
+            name = profile.name if profile else ''
+            self.profileNameEdit.blockSignals(True)
+            self.profileNameEdit.setText(name)
+            self.profileNameEdit.blockSignals(False)
+
+
     def editScript(self):
         if scriptEditor.edit(self.currentScript()):
             self.scripts_tree_model.refresh(self.scripts_tree_model._data)
@@ -135,8 +161,5 @@ class mainWindow(QMainWindow, Ui_KPI):
 
 
     def newProfile(self):
-        pass
-
-
-    def removeProfile(self):
-        pass
+        row = self.profiles_model.insertProfile()
+        self.profilesView.setCurrentIndex(self.profiles_model.index(row, 0))

@@ -9,6 +9,20 @@ class profileObject():
         self.name = 'unnamed'
 
 
+    def encode(self):
+        return {
+            'name':self.name,
+            'values':self.values
+        }
+
+    @classmethod
+    def decode(cls, data):
+        obj = cls()
+        obj.name = data.get('name', 'unnamed')
+        obj.values = data.get('values', {})
+        return obj
+
+
 
 class inputsListModel(QAbstractItemModel):
 
@@ -31,13 +45,12 @@ class inputsListModel(QAbstractItemModel):
     def loadData(self, script=None):
         self.clear()
 
-        if script:
+        if script is not None:
             self._script = script
-
-        if self._script:
             self._script.profiles.sort(key = lambda x: x.name)
-            self._data = script.profiles
+            self._data = self._script.profiles
         else:
+            self._script = None
             self._data = []
 
         self.beginInsertRows(QModelIndex(), 0, len(self._data))
@@ -56,11 +69,23 @@ class inputsListModel(QAbstractItemModel):
         return 1
 
 
+    def index(self, row, column, parent=QModelIndex()):
+        if row < len(self._data):
+            profile = self._data[row]
+            return QAbstractItemModel.createIndex(self, row, column, profile)
+        else:
+            return QtCore.QModelIndex()
+
+
+    def parent(self, child):
+        return QModelIndex()
+
+
     def data(self, index, role):
         if not index.isValid():
             return None
 
-        profile = SELF._data(index.row())
+        profile = self._data[index.row()]
 
         if role == Qt.DisplayRole:
             if index.column() == 0:
@@ -76,14 +101,19 @@ class inputsListModel(QAbstractItemModel):
         return QAbstractItemModel.headerData(self, section, orientation, role)
 
 
-    def insertProfile(self, row, profile):
+    def insertProfile(self, row=-1, profile=None):
+        if profile is None:
+            profile = profileObject()
+
         if row < 0:
+            row = len(self._data)
             self._data.append(profile)
         else:
             self._data.insert(row, profile)
-        self.loadData(self._data)
+        self.loadData(self._script)
+        return row
 
 
     def removeProfile(self, profile):
         self._data.remove(profile)
-        self.loadData(self._data)
+        self.loadData(self._script)

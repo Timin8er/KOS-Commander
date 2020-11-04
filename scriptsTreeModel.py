@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIcon
 import os
 import json
 from . import icons
+from .inputProfilesModel import profileObject
 
 class scriptObject():
 
@@ -20,7 +21,7 @@ class scriptObject():
             "name":self.name,
             "folder":self.folder,
             "inputs":[i.encode() for i in self.inputs],
-            "profiles":[i.encode() for i in self.inputs],
+            "profiles":[i.encode() for i in self.profiles],
             "text":self.text,
             "isCommand":self.isCommand
         }
@@ -31,7 +32,7 @@ class scriptObject():
         obj.name = data.get('name', 'unnamed')
         obj.folder = data.get('folder', '')
         obj.inputs = [scriptInput.decode(i) for i in data['inputs']]
-        obj.profiles = [scriptProfile.decode(i) for i in data['profiles']]
+        obj.profiles = [profileObject.decode(i) for i in data['profiles']]
         obj.text = data.get('text', '')
         obj.isCommand = data.get('isCommand', False)
         return obj
@@ -62,26 +63,6 @@ class scriptInput():
         obj.value = data['value']
         obj.limits = data['limits']
         obj.helpText = data.get('helpText','')
-        return obj
-
-
-class scriptProfile():
-
-    def __init__(self):
-        self.name = None
-        self.values = []
-
-    def encode(self):
-        return {
-            "name":self.name,
-            "values":self.values
-        }
-
-    @property
-    def decode(cls, data):
-        obj = cls()
-        obj.name = data['name']
-        obj.values = data['values']
         return obj
 
 
