@@ -4,8 +4,9 @@ from PyQt5.QtCore import QModelIndex
 from .mainWindowDesigner import Ui_KPI
 import os
 from . import kos_connection, icons
-from .scriptsTreeModel import scriptsTreeModel, scriptObject
-from .inputProfilesModel import profileObject, inputsListModel
+from .script import profileObject, scriptObject, inputObject
+from .scriptsTreeModel import scriptsTreeModel
+from .profilesModel import profilesListModel
 from .scriptEditor import scriptEditor
 
 
@@ -32,7 +33,7 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.scriptsView.selectionModel().currentChanged.connect(self.useCurrentScript)
 
         # ======================================================================
-        self.profiles_model = inputsListModel()
+        self.profiles_model = profilesListModel()
         self.profilesView.setModel(self.profiles_model)
         self.profilesView.selectionModel().currentChanged.connect(self.useCurrentProfile)
 
@@ -77,13 +78,13 @@ class mainWindow(QMainWindow, Ui_KPI):
         self.scriptsView.setCurrentIndex(QModelIndex())
 
 
-
     def toggleScriptsLock(self):
         self.script_edit_unlocked ^= True
         self.btnNewScript.setEnabled(self.script_edit_unlocked)
         self.btnEditScript.setEnabled(self.script_edit_unlocked)
         self.btnDeleteScript.setEnabled(self.script_edit_unlocked)
         self.btnLockScripts.setIcon(QIcon(icons.TOGGLE_ON) if self.script_edit_unlocked else QIcon(icons.TOGGLE_OFF))
+
 
     def toggleProfilesLock(self):
         self.profiles_edit_unlocked ^= True

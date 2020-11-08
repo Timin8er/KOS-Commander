@@ -1,1 +1,52 @@
-[{"name": "Another", "folder": "Stuff", "inputs": [], "profiles": [], "text": "Whgy Not", "isCommand": false}, {"name": "Test", "folder": "folder", "inputs": [], "profiles": [{"name": "named", "values": {}}, {"name": "one", "values": {}}, {"name": "two", "values": {}}, {"name": "threed", "values": {}}], "text": "this is a script", "isCommand": true}]
+[
+    {
+        "description": "this is a description",
+        "folder": "Stuff",
+        "inputs": [
+            {
+                "cls": "inputObject",
+                "defaultValue": null,
+                "helpText": "help me",
+                "name": "yes",
+                "type": "string"
+            },
+            {
+                "cls": "inputObject",
+                "defaultValue": null,
+                "helpText": "",
+                "name": "no",
+                "type": "float"
+            }
+        ],
+        "isCommand": false,
+        "name": "Another",
+        "profiles": [],
+        "text": "Whgy Not"
+    },
+    {
+        "description": "",
+        "folder": "folder",
+        "inputs": [],
+        "isCommand": true,
+        "name": "Test",
+        "profiles": [
+            {
+                "name": "named",
+                "values": {}
+            },
+            {
+                "name": "one",
+                "values": {}
+            },
+            {
+                "name": "two",
+                "values": {}
+            },
+            {
+                "name": "threed",
+                "values": {}
+            }
+        ],
+        "text": "this is a script"
+    }
+]

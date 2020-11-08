@@ -1,32 +1,8 @@
 from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
-import os
 from PyQt5.QtWidgets import QDialog
+from .script import profileObject
 
-class profileObject():
-
-    def __init__(self):
-        self.values = {}
-        self.name = 'unnamed'
-
-
-    def encode(self):
-        return {
-            'name':self.name,
-            'values':self.values
-        }
-
-    @classmethod
-    def decode(cls, data):
-        obj = cls()
-        obj.name = data.get('name', 'unnamed')
-        obj.values = data.get('values', {})
-        return obj
-
-
-
-class inputsListModel(QAbstractItemModel):
-
-    scripts_file = os.path.join(os.path.dirname(__file__), 'scripts.json')
+class profilesListModel(QAbstractItemModel):
 
     def __init__(self, *args, **kwargs):
         QAbstractItemModel.__init__(self, *args, **kwargs)
@@ -74,7 +50,7 @@ class inputsListModel(QAbstractItemModel):
             profile = self._data[row]
             return QAbstractItemModel.createIndex(self, row, column, profile)
         else:
-            return QtCore.QModelIndex()
+            return QModelIndex()
 
 
     def parent(self, child):

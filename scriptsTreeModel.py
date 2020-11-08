@@ -3,68 +3,7 @@ from PyQt5.QtGui import QIcon
 import os
 import json
 from . import icons
-from .inputProfilesModel import profileObject
-
-class scriptObject():
-
-    def __init__(self):
-        self.name = None
-        self.folder = None
-        self.inputs = []
-        self.profiles = []
-        self.text = ''
-        self.onboard = False
-        self.isCommand = False
-
-    def encode(self):
-        return {
-            "name":self.name,
-            "folder":self.folder,
-            "inputs":[i.encode() for i in self.inputs],
-            "profiles":[i.encode() for i in self.profiles],
-            "text":self.text,
-            "isCommand":self.isCommand
-        }
-
-    @classmethod
-    def decode(cls, data):
-        obj = cls()
-        obj.name = data.get('name', 'unnamed')
-        obj.folder = data.get('folder', '')
-        obj.inputs = [scriptInput.decode(i) for i in data['inputs']]
-        obj.profiles = [profileObject.decode(i) for i in data['profiles']]
-        obj.text = data.get('text', '')
-        obj.isCommand = data.get('isCommand', False)
-        return obj
-
-
-class scriptInput():
-
-    def __init__(self):
-        self.name = 'unnamed'
-        self.value = None
-        self.limits = {}
-        self.helpText = ''
-
-
-    def encode(self):
-        return {
-            "name":self.name,
-            "cls":self.__class__.__name__,
-            "value":self.value,
-            "limits":self.limits,
-            "helpText":self.helpText
-        }
-
-    @property
-    def decode(cls, data):
-        obj = cls()
-        obj.name = data['name']
-        obj.value = data['value']
-        obj.limits = data['limits']
-        obj.helpText = data.get('helpText','')
-        return obj
-
+from .script import scriptObject
 
 class folderItem():
 
@@ -161,7 +100,7 @@ class scriptsTreeModel(QAbstractItemModel):
     def save(self):
         data = [i.encode() for i in self._data]
         with open(self.scripts_file, 'w') as sf:
-            sf.write(json.dumps(data))
+            sf.write(json.dumps(data, sort_keys=True, indent=4))
 
     def recursive_add_folder(self, structure, path):
         if not path:
