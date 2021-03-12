@@ -1,12 +1,11 @@
 from time import sleep
 import telnetlib
-import json
-import os
+from KOSCommander import settings
 
 class kos_connection(telnetlib.Telnet):
 
-    def __init__(self, *args, cpu=1, **kwargs):
-        telnetlib.Telnet.__init__(self, *args, **kwargs)
+    def __init__(self, cpu=1):
+        telnetlib.Telnet.__init__(self, settings.HOST, settings.PORT, settings.TIMEOUT)
 
         data = self.read_until(b'>')
         self.write(b'1\n')

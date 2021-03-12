@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
 from PyQt5.QtWidgets import QDialog
-from .script import profileObject
+from KOSCommander.core import profileObject
 
 class profilesListModel(QAbstractItemModel):
 

@@ -3,8 +3,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QModelIndex
 from .mainWindowDesigner import Ui_KPI
 import os
-from . import kos_connection, icons
-from .script import profileObject, scriptObject, inputObject
+from . import icons
+from KOSCommander.core import profileObject, scriptObject, inputObject
 from .scriptsTreeModel import scriptsTreeModel
 from .profilesModel import profilesListModel
 from .scriptEditor import scriptEditor
@@ -157,7 +157,7 @@ class mainWindow(QMainWindow, Ui_KPI):
             self.scriptsView.expandAll()
 
     def saveScripts(self):
-        self.scripts_tree_model.save()
+        storage.save(self.scripts_tree_model._data)
         QMessageBox.information(self, 'Save', 'Scripts Saved')
 
 

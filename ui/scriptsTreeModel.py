@@ -1,9 +1,9 @@
 from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
 from PyQt5.QtGui import QIcon
 import os
-import json
 from . import icons
-from .script import scriptObject
+from KOSCommander.core import scriptObject, storage
+from KOSCommander import settings
 
 class folderItem():
 
@@ -44,8 +44,6 @@ class scriptTreeNode():
 
 class scriptsTreeModel(QAbstractItemModel):
 
-    scripts_file = os.path.join(os.path.dirname(__file__), 'scripts.json')
-
     def __init__(self, *args, **kwargs):
         QAbstractItemModel.__init__(self, *args, **kwargs)
 
@@ -66,10 +64,8 @@ class scriptsTreeModel(QAbstractItemModel):
         self.clear()
 
         if data is None:
-            with open(self.scripts_file) as sf:
-                data = json.load(sf)
-            data = [scriptObject.decode(i) for i in data]
-            self._data = data
+            data = storage.load()
+        self._data = data
 
         data.sort(key = lambda x: x.name)
 
@@ -96,11 +92,6 @@ class scriptsTreeModel(QAbstractItemModel):
         self.beginInsertRows(QModelIndex(), 0, self._root.childCount())
         self.endInsertRows()
 
-
-    def save(self):
-        data = [i.encode() for i in self._data]
-        with open(self.scripts_file, 'w') as sf:
-            sf.write(json.dumps(data, sort_keys=True, indent=4))
 
     def recursive_add_folder(self, structure, path):
         if not path:

@@ -4,7 +4,7 @@ from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
 from .scriptEditorDesigner import Ui_scriptEditorDialog
 from . import icons
 from .inputModel import inputsTableModel, inputTableDelagate
-from .script import inputObject
+from KOSCommander.core import inputObject
 
 class scriptEditor(QDialog, Ui_scriptEditorDialog):
 
