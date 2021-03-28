@@ -71,7 +71,7 @@ class inputsTableModel(QAbstractItemModel):
 
 
     def index(self, row, column, parent=QModelIndex()):
-        if row < len(self._data):
+        if row >= 0 and row < len(self._data):
             input = self._data[row]
             return QAbstractItemModel.createIndex(self, row, column, input)
         else:

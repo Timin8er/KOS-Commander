@@ -4,7 +4,7 @@ from PyQt5.QtCore import QModelIndex
 from .mainWindowDesigner import Ui_KPI
 import os
 from . import icons
-from KOSCommander.core import profileObject, scriptObject, inputObject
+from KOSCommander.core import profileObject, scriptObject, inputObject, storage
 from .scriptsTreeModel import scriptsTreeModel
 from .profilesModel import profilesListModel
 from .scriptEditor import scriptEditor

@@ -1,52 +1,20 @@
 [
     {
-        "description": "this is a description",
-        "folder": "Stuff",
-        "inputs": [
-            {
-                "cls": "inputObject",
-                "defaultValue": null,
-                "helpText": "help me",
-                "name": "yes",
-                "type": "string"
-            },
-            {
-                "cls": "inputObject",
-                "defaultValue": null,
-                "helpText": "",
-                "name": "no",
-                "type": "float"
-            }
-        ],
+        "description": "",
+        "folder": "",
+        "inputs": [],
         "isCommand": false,
-        "name": "Another",
+        "name": "launch",
         "profiles": [],
-        "text": "Whgy Not"
+        "text": "LOCAL PITCH_MIN TO 5.\nLOCAL SPEED_MIN TO 20.\n\n//////////\n// Open the throttle, but save the mono\nRCS OFF.\nSAS OFF.\nWAIT 0.\n\nLOCK THROTTLE TO 1.0.\n\n// Point straight up\nLOCAL HEAD TO HEADING(90,90).\nLOCK STEERING TO HEAD.\n\nstage.\n\nUNTIL SHIP:APOAPSIS > target_ap {\n\t// Handle steering\n\n\tLOCAL SPEED TO SHIP:VELOCITY:SURFACE:MAG.\n\n\tIF SPEED < SPEED_MIN {\n\t\tSET HEAD TO HEADING(90,90).\n\t} ELSE {\n    LOCAL AP TO SHIP:APOAPSIS.\n\t\tLocal PITCH TO ROUND(90 - SQRT(AP*pitch_sqrt_mod*0.01) + ((AP*pitch_pow_mod*0.000001)^2) + (AP*pitch_line_mod*0.00001), 1).\n\t\tIF PITCH < PITCH_MIN SET PITCH TO PITCH_MIN.\n\n\t\tSET HEAD TO HEADING(90, PITCH).\n\t}.\n\n  // staging\n  LIST ENGINES IN ENGLIST.\n  FOR ENG IN ENGLIST {\n  \tIF ENG:FLAMEOUT = TRUE {\n      stage.\n      BREAK.\n  \t}.\n  }.\n\n}.\n\nUNLOCK STEERING.\nLOCK THROTTLE TO 0.\n\n// We will want RCS here in case something goes wrong (like fast forward)\nRCS ON.\nSAS ON.\nLOCK THROTTLE TO 0.\nWAIT 0. // cant set sasmode on the same tick as sas\nSET SASMODE TO \"PROGRADE\".\n\nWAIT UNTIL SHIP:ALTITUDE > 70000.\n\n// Because we can\nPANELS ON.\nRADIATORS ON.\n\n// This sets the user's throttle setting to zero to prevent the throttle\n// from returning to the position it was at before the script was run.\nSET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.\""
     },
     {
         "description": "",
-        "folder": "folder",
+        "folder": "",
         "inputs": [],
-        "isCommand": true,
-        "name": "Test",
-        "profiles": [
-            {
-                "name": "named",
-                "values": {}
-            },
-            {
-                "name": "one",
-                "values": {}
-            },
-            {
-                "name": "two",
-                "values": {}
-            },
-            {
-                "name": "threed",
-                "values": {}
-            }
-        ],
-        "text": "this is a script"
+        "isCommand": false,
+        "name": "test_launch",
+        "profiles": [],
+        "text": "set throttle to 1.\nstage."
     }
 ]
